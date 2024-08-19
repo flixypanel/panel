@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Película</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            transition: margin-left 0.3s;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #007BFF;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: -250px; /* Ocultar el menú inicialmente */
+            height: 100%;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s;
+            z-index: 1000; /* Asegúrate de que el menú esté sobre el contenido */
+        }
+        .sidebar:hover {
+            left: 0; /* Mostrar el menú cuando se pasa el ratón sobre él */
+        }
+        .sidebar h2 {
+            margin-top: 0;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            margin: 10px 0;
+            font-size: 18px;
+            transition: background-color 0.3s;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar a i {
+            margin-right: 10px;
+        }
+        .sidebar a:hover {
+            background-color: #0056b3;
+        }
+        .main-content {
+            margin-left: 0;
+            padding: 20px;
+            flex: 1;
+            width: 100%;
+            transition: margin-left 0.3s;
+        }
+        .main-content.with-sidebar {
+            margin-left: 250px; /* Ajustar el contenido cuando el menú está abierto */
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007BFF;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="url"] {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            width: 100%;
+        }
+        select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            width: 100%;
+        }
+        button {
+            padding: 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .link-back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007BFF;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .link-back:hover {
+            text-decoration: underline;
+        }
+        /* Estilos para el modal */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgb(0,0,0); 
+            background-color: rgba(0,0,0,0.4); 
+            padding-top: 60px; 
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .modal-footer button {
+            margin-left: 10px;
+        }
+        .image-preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .image-preview img {
+            max-width: 200px;
+            display: none;
+        }
+        .poster-images img {
+            max-width: 100px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .cover-images img {
+            max-width: 100px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Menú</h2>
+        <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
+        <a href="add-movie.html"><i class="fas fa-plus"></i> Agregar Película</a>
+        <a href="remove-movie.html"><i class="fas fa-cogs"></i> Gestionar Películas y Géneros</a> <!-- Cambiado aquí -->
+    </div>
+    <div class="main-content">
+        <div class="container">
+            <h1>Agregar Información de Película</h1>
+            <form id="add-movie-form">
+                <label for="movieId">ID de la película:</label>
+                <input type="text" id="movieId" name="movieId" placeholder="Ejemplo: 550" required>
+                
+                <label for="movieLink">Enlace de la película:</label>
+                <input type="url" id="movieLink" name="movieLink" placeholder="https://example.com" required>
+
+                <label for="movieGenre">Género de la película:</label>
+                <select id="movieGenre" name="movieGenre" required>
+                    <!-- Opciones de género dinámicas -->
+                </select>
+
+                <button type="button" id="fetchImagesButton">Cargar Portada y Carátula</button>
+
+                <label for="coverPreview">Carátula:</label>
+                <div class="image-preview">
+                    <img id="coverPreview" src="" alt="Vista previa de la carátula">
+                </div>
+
+                <label for="posterPreview">Portada:</label>
+                <div class="image-preview">
+                    <img id="posterPreview" src="" alt="Vista previa de la portada">
+                </div>
+
+                <input type="hidden" id="coverUrl" name="coverUrl">
+                <input type="hidden" id="posterUrl" name="posterUrl">
+                
+                <button type="submit">Agregar Película</button>
+            </form>
+            <a href="index.html" class="link-back">Volver al listado de películas</a>
+            <!-- Mensaje de éxito -->
+            <div id="success-message" style="display: none; color: green; text-align: center; margin-top: 20px;">
+                Película agregada exitosamente!
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para seleccionar portada -->
+    <div id="posterModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Selecciona una Portada</h2>
+            <div id="poster-images" class="poster-images">
+                <!-- Imágenes de portada cargadas dinámicamente aquí -->
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-poster-button">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para seleccionar carátula -->
+    <div id="coverModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Selecciona una Carátula</h2>
+            <div id="cover-images" class="cover-images">
+                <!-- Imágenes de carátula cargadas dinámicamente aquí -->
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-cover-button">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('add-movie-form');
+        const successMessage = document.getElementById('success-message');
+        const genreSelect = document.getElementById('movieGenre');
+        const fetchImagesButton = document.getElementById('fetchImagesButton');
+        const coverPreview = document.getElementById('coverPreview');
+        const posterPreview = document.getElementById('posterPreview');
+        const coverUrlInput = document.getElementById('coverUrl');
+        const posterUrlInput = document.getElementById('posterUrl');
+        const posterModal = document.getElementById('posterModal');
+        const coverModal = document.getElementById('coverModal');
+        const posterImagesContainer = document.getElementById('poster-images');
+        const coverImagesContainer = document.getElementById('cover-images');
+        const cancelPosterButton = document.getElementById('cancel-poster-button');
+        const cancelCoverButton = document.getElementById('cancel-cover-button');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const movieId = form.movieId.value;
+            const movieLink = form.movieLink.value;
+            const movieGenre = form.movieGenre.value;
+            const coverImage = coverUrlInput.value || ''; // Carátula seleccionada
+            const posterUrl = posterUrlInput.value || ''; // Portada seleccionada
+
+            const apiKey = '60d9b5cc5a23b1b97a2a7cb34a5e4373';
+            const apiUrl = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const movie = await response.json();
+
+                const movieData = {
+                    title: movie.title,
+                    posterPath: movie.poster_path,
+                    overview: movie.overview,
+                    link: movieLink,
+                    genre: movieGenre,
+                    coverImage: coverImage,
+                    posterUrl: posterUrl
+                };
+
+                // Guardar en localStorage (para propósitos de demostración; en un entorno real, usarías una base de datos)
+                const movies = JSON.parse(localStorage.getItem('movies')) || [];
+                movies.push(movieData);
+                localStorage.setItem('movies', JSON.stringify(movies));
+
+                // Mostrar mensaje de éxito
+                successMessage.style.display = 'block';
+
+                // Limpiar formulario y opciones de género
+                form.reset();
+                genreSelect.innerHTML = ''; 
+                populateGenreOptions();
+                coverPreview.src = '';
+                posterPreview.src = '';
+                coverUrlInput.value = '';
+                posterUrlInput.value = '';
+            } catch (error) {
+                alert('Error al agregar la película. Verifica el ID y el enlace.');
+            }
+        });
+
+        function populateGenreOptions() {
+            const genres = JSON.parse(localStorage.getItem('genres')) || [];
+            genreSelect.innerHTML = genres.map(genre => `
+                <option value="${genre}">${genre}</option>
+            `).join('');
+        }
+
+        async function loadPosterImages(movieId) {
+            const apiKey = '60d9b5cc5a23b1b97a2a7cb34a5e4373';
+            const apiUrl = `https://api.themoviedb.org/3/movie/${movieId}/images?api_key=${apiKey}`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                const posters = data.posters;
+                posterImagesContainer.innerHTML = posters.map(poster => `
+                    <img src="https://image.tmdb.org/t/p/w500${poster.file_path}" data-url="https://image.tmdb.org/t/p/w500${poster.file_path}" alt="Portada">
+                `).join('');
+            } catch (error) {
+                console.error('Error cargando imágenes de portada:', error);
+            }
+        }
+
+        async function loadCoverImages(movieId) {
+            const apiKey = '60d9b5cc5a23b1b97a2a7cb34a5e4373';
+            const apiUrl = `https://api.themoviedb.org/3/movie/${movieId}/images?api_key=${apiKey}`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                const covers = data.backdrops;
+                coverImagesContainer.innerHTML = covers.map(cover => `
+                    <img src="https://image.tmdb.org/t/p/w500${cover.file_path}" data-url="https://image.tmdb.org/t/p/w500${cover.file_path}" alt="Carátula">
+                `).join('');
+            } catch (error) {
+                console.error('Error cargando imágenes de carátula:', error);
+            }
+        }
+
+        fetchImagesButton.addEventListener('click', () => {
+            const movieId = form.movieId.value;
+            if (movieId) {
+                loadPosterImages(movieId);
+                loadCoverImages(movieId);
+                posterModal.style.display = 'block';
+                coverModal.style.display = 'block';
+            } else {
+                alert('Por favor, ingresa el ID de la película primero.');
+            }
+        });
+
+        // Modal functionality
+        document.querySelectorAll('.close').forEach(element => {
+            element.addEventListener('click', () => {
+                posterModal.style.display = 'none';
+                coverModal.style.display = 'none';
+            });
+        });
+
+        cancelPosterButton.addEventListener('click', () => {
+            posterModal.style.display = 'none';
+        });
+
+        cancelCoverButton.addEventListener('click', () => {
+            coverModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target == posterModal || event.target == coverModal) {
+                posterModal.style.display = 'none';
+                coverModal.style.display = 'none';
+            }
+        });
+
+        posterImagesContainer.addEventListener('click', (event) => {
+            if (event.target.tagName === 'IMG') {
+                posterPreview.src = event.target.getAttribute('data-url');
+                posterUrlInput.value = event.target.getAttribute('data-url');
+                posterModal.style.display = 'none';
+            }
+        });
+
+        coverImagesContainer.addEventListener('click', (event) => {
+            if (event.target.tagName === 'IMG') {
+                coverPreview.src = event.target.getAttribute('data-url');
+                coverUrlInput.value = event.target.getAttribute('data-url');
+                coverModal.style.display = 'none';
+            }
+        });
+
+        // Inicializar opciones de género al cargar la página
+        populateGenreOptions();
+    </script>
+</body>
+</html>

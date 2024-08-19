@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mostrar Películas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #141414; /* Fondo oscuro */
+            color: #fff;
+        }
+        .header {
+            background-color: #000;
+            padding: 20px 30px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+            color: #e50914; /* Color de acento */
+            font-weight: bold;
+        }
+        .header .menu-icon {
+            font-size: 1.5em;
+            display: none;
+            cursor: pointer;
+        }
+        .header nav {
+            display: flex;
+            gap: 20px;
+        }
+        .header nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1em;
+            font-weight: 500;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+        .header nav a:hover {
+            color: #e50914;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+        .movie-section {
+            padding: 80px 20px 20px; /* Padding-top para evitar superposición con el header */
+            overflow: hidden;
+            position: relative;
+        }
+        .movie-section .title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .movie-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            gap: 20px;
+            padding: 10px 0;
+        }
+        .movie-card {
+            width: 220px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            cursor: pointer;
+            background: #333;
+        }
+        .movie-card img {
+            width: 100%;
+            height: auto;
+            transition: opacity 0.3s;
+        }
+        .movie-card:hover img {
+            opacity: 0.7;
+        }
+        .movie-details {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .movie-card:hover .movie-details {
+            opacity: 1;
+        }
+        .movie-details h3 {
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        .movie-details a {
+            color: #e50914;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 10px;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+        .movie-details a:hover {
+            text-decoration: underline;
+        }
+        /* Arrows */
+        .arrow {
+            position: absolute;
+            top: 50%;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            transition: background-color 0.3s;
+        }
+        .arrow:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        .arrow.left {
+            left: 0;
+            transform: translateY(-50%);
+        }
+        .arrow.right {
+            right: 0;
+            transform: translateY(-50%);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            .header nav {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                right: 20px;
+                background-color: #000;
+                border: 1px solid #333;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            }
+            .header nav a {
+                margin: 10px 20px;
+            }
+            .header .menu-icon {
+                display: block;
+            }
+        }
+
+        /* Show menu when active */
+        .header nav.active {
+            display: flex;
+        }
+    </style>
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FZQJVT5PQN"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-FZQJVT5PQN');
+</script>
+<body>
+    <header class="header">
+        <h1>Mi Lista de Películas</h1>
+        <div class="menu-icon">
+            <i class="fas fa-bars"></i>
+        </div>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="add-movie.html">Agregar Película</a>
+            <a href="edit.html">Gestionar Películas y Géneros</a>
+        </nav>
+    </header>
+    <div class="movie-section">
+        <div class="title">Películas por Género</div>
+        <div id="genre-container">
+            <!-- Las películas se organizarán por género aquí -->
+        </div>
+        <div class="arrow left" id="arrow-left"><i class="fas fa-chevron-left"></i></div>
+        <div class="arrow right" id="arrow-right"><i class="fas fa-chevron-right"></i></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuIcon = document.querySelector('.menu-icon');
+            const nav = document.querySelector('header nav');
+            const genreContainer = document.getElementById('genre-container');
+            const arrowLeft = document.getElementById('arrow-left');
+            const arrowRight = document.getElementById('arrow-right');
+
+            menuIcon.addEventListener('click', () => {
+                nav.classList.toggle('active');
+            });
+
+            function loadMovies() {
+                const movies = JSON.parse(localStorage.getItem('movies')) || [];
+                const genres = {};
+
+                // Organizar películas por género
+                movies.forEach(movie => {
+                    if (!genres[movie.genre]) {
+                        genres[movie.genre] = [];
+                    }
+                    genres[movie.genre].push(movie);
+                });
+
+                // Crear el HTML para cada género
+                genreContainer.innerHTML = Object.keys(genres).map(genre => `
+                    <div class="genre-section">
+                        <h2>${genre}</h2>
+                        <div class="movie-carousel">
+                            ${genres[genre].map(movie => `
+                                <div class="movie-card">
+                                    <img src="https://image.tmdb.org/t/p/w500${movie.posterPath}" alt="${movie.title}">
+                                    <div class="movie-details">
+                                        <h3>${movie.title}</h3>
+                                        <a href="${movie.link}" target="_blank">Ver en detalle</a>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function scrollCarousel(direction) {
+                const carousels = document.querySelectorAll('.movie-carousel');
+                carousels.forEach(carousel => {
+                    const scrollAmount = direction === 'left' ? -300 : 300;
+                    carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                });
+            }
+
+            arrowLeft.addEventListener('click', () => scrollCarousel('left'));
+            arrowRight.addEventListener('click', () => scrollCarousel('right'));
+
+            loadMovies();
+        });
+    </script>
+</body>
+</html>
